@@ -1,0 +1,31 @@
+name: Deploy to EC2 (dist branch)
+
+# Trigger the workflow on pushes to the dist branch
+on:
+  push:
+    branches:
+      - dist
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the dist branch
+      - name: Checkout dist branch
+        uses: actions/checkout@v3
+
+      # Step 2: Copy the contents of the `dist` folder to EC2
+      - name: Copy build files to EC2
+        uses: appleboy/scp-action@v0.2.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          source: "dist/*"  # Copy contents of the `dist` folder
+          target: "/home/Gossip/"  # Deploy directly into /home/Gossip/
+
+      # Step 3: Restart the web server to apply the changes
+      - name: Restart Web Server
+        run: |
+          ssh -i ${{ secrets.EC2_KEY }} ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "sudo systemctl restart nginx"
