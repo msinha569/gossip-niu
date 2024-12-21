@@ -25,6 +25,6 @@ jobs:
 
       - name: Restart Web Server
         run: |
-          echo "${{ secrets.EC2_KEY }}" > /tmp/private_key.pem  # Write the key to a file
-          chmod 600 /tmp/private_key.pem  # Make the key file readable
-          ssh -i /tmp/private_key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "sudo systemctl restart nginx"
+          sudo echo "${{ secrets.EC2_KEY }}" > /tmp/private_key.pem  # Write the key to a file
+          sudo chmod 600 /tmp/private_key.pem  # Make the key file readable
+          sudo ssh -i /tmp/private_key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "sudo systemctl restart nginx"
