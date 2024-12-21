@@ -28,7 +28,7 @@ jobs:
 
     - name: Deploy code to EC2
       run: |
-        scp -r . ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/Gossip/  # Copy files to EC2
+        scp -r ./dist/ ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/Gossip/  # Copy files to EC2
 
     - name: Restart Nginx on EC2
       run: |
