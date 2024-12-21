@@ -22,6 +22,8 @@ jobs:
           key: ${{ secrets.EC2_KEY }}
           source: "dist/*"
           target: "/home/Gossip/"
+          timeout: 300 # Increase overall timeout to 5 minutes
+          command_timeout: 300
 
       - name: Restart Web Server
         run: |
