@@ -1,0 +1,39 @@
+name: Deploy to EC2 (dist branch)
+
+# Trigger the workflow on pushes to the dist branch
+on:
+  push:
+    branches:
+      - dist
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the dist branch
+      - name: Checkout dist branch
+        uses: actions/checkout@v3
+
+      # Step 2: SSH into EC2 and pull the latest changes from the dist branch
+      - name: Pull latest changes on EC2
+        run: |
+          ssh -i ${{ secrets.EC2_KEY }} ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+            cd /home/Gossip  # This is where your repository is located
+            git fetch origin
+            git checkout dist  # Make sure you're on the dist branch
+            git pull origin dist  # Pull the latest changes from the dist branch
+          EOF
+
+      # Step 3: Copy files to the web server directory
+      - name: Copy files to web server directory
+        run: |
+          ssh -i ${{ secrets.EC2_KEY }} ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+            sudo cp -r /home/Gossip/* /var/www/html/  # Copy files from /home/Gossip to /var/www/html
+            sudo chown -R www-data:www-data /var/www/html  # Make sure the web server has permission
+          EOF
+
+      # Step 4: Restart the web server to apply the changes
+      - name: Restart Web Server
+        run: |
+          ssh -i ${{ secrets.EC2_KEY }} ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "sudo systemctl restart nginx"
